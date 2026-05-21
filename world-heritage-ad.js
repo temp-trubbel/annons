@@ -1,52 +1,3 @@
-// Skapar HTML-mall
-const template = document.createElement("template");
-template.innerHTML =
-`
-<style>
-    .cardAd {
-        max-width: 600px;
-
-        & .cardImage {
-            aspect-ratio: 4/1;
-            object-fit: cover;
-        }
-
-        & .cardBody {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            sl-avatar {
-                --size: 7rem;
-            }
-
-            & .cardText {
-                h1, p {
-                    margin: 0;
-                }
-            }
-        }
-    }
-</style>
-
-<sl-card class="cardAd">
-    <img class="cardImage" slot="image" src="https://images.unsplash.com/photo-1559209172-0ff8f6d49ff7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80" />
-
-    <div class="cardBody">
-        <sl-avatar shape="square">
-            <sl-icon slot="icon" name="bank"></sl-icon>
-        </sl-avatar>
-
-        <div class="cardText">
-            <h1>Titel</h1>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa perspiciatis nobis labore, ut ipsum dicta fugit voluptatem ratione illum, eveniet dolor amet est. Eius fuga pariatur, excepturi sed a cupiditate.</p>
-        </div>
-
-        <sl-button variant="primary" size="large">Läs mer</sl-button>
-    </div>
-</sl-card>
-`
-
 class WorldHeritageAd extends HTMLElement {
     constructor() {
         // Super måste alltid anropas först i konstruktorn
@@ -57,8 +8,6 @@ class WorldHeritageAd extends HTMLElement {
 
         // Laddar in Shoelace
         this.loadShoelace();
-        
-        // this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
 
     loadShoelace() {
@@ -147,12 +96,69 @@ class WorldHeritageAd extends HTMLElement {
                     <p class="shortDescription">${worldHeritage.short_description_en}</p>
                 </div>
 
-                <sl-button variant="primary" size="large">Läs mer</sl-button>
+                <sl-button id="open-dialog-btn" variant="primary" size="large">Läs mer</sl-button>
             </div>
         </sl-card>
+
+        <sl-dialog label="Prenumenera på tjänsten" id="dialog-more">
+            <div style="height: 150vh;">
+                <h1>${worldHeritage.name_en}</h1>
+
+                <sl-carousel pagination mouse-dragging loop>
+                    <sl-carousel-item>
+                        <img src="https://whc.unesco.org/document/218642">
+                    </sl-carousel-item>
+                </sl-carousel>
+
+                <p>${worldHeritage.short_description_en}</p>
+
+                <sl-tab-group>
+                    <sl-tab slot="nav" panel="subscribe">Varför prenumerera?</sl-tab>
+                    <sl-tab slot="nav" panel="terms">Villkor</sl-tab>
+                    <sl-tab slot="nav" panel="installation">Installationsprocess</sl-tab>
+
+                    <sl-tab-panel name="subscribe">
+                        <p>Lorem ipsum1...</p>
+                    </sl-tab-panel>
+
+                    <sl-tab-panel name="terms">
+                        <p>Lorem ipsum2...</p>
+                    </sl-tab-panel>
+
+                    <sl-tab-panel name="installation">
+                        <p>Lorem ipsum3...</p>
+                    </sl-tab-panel>
+                </sl-tab-group>
+
+                <sl-divider style="--spacing: 2rem;"></sl-divider>
+
+                <form>
+                    <sl-input label="Namn"></sl-input>
+                    <sl-input label="E-post" type="email"></sl-input>
+                    <sl-input label="Telefonnummer"></sl-input>
+
+                    <sl-checkbox>Jag har ett svenskt personnummer</sl-checkbox>
+                    <sl-input label="Personnummer" disabled></sl-input>
+                </form>
+
+                <form>
+                    <sl-input label="Betala med kort" placeholder="Kortnummer"></sl-input>
+                    <div>
+                        <sl-input placeholder="MM / YY"></sl-input>
+                        <sl-input placeholder="CVC"></sl-input>
+                    </div>
+                </form>
+
+                <sl-button variant="success" size="large" style="width: 100%;">Betala</sl-button>
+            </div>
+        </sl-dialog>
         `
 
         this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+        const openDialogBtn = this.shadowRoot.querySelector("#open-dialog-btn");
+        const dialog = this.shadowRoot.querySelector("#dialog-more");
+        openDialogBtn.addEventListener('click', () => dialog.show());
     }
 
     async findMyCoordinates() {
