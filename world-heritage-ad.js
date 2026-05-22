@@ -42,9 +42,28 @@ class WorldHeritageAd extends HTMLElement {
         // GET världsarv från API
         const worldHeritage = await this.getWorldHeritage(coordinates)
         console.log(worldHeritage);
-
+        
         // Render final
         this.render(worldHeritage)
+
+        // create Stripe checkout container in LIGHT DOM
+        const checkoutContainer = document.createElement('div');
+        checkoutContainer.id = 'checkout-container';
+        checkoutContainer.innerHTML =
+        `
+            <input type="text" id="email" />
+            <div id="email-errors"></div>
+            <div id="payment-element"></div>
+            <button id="pay-button">Pay</button>
+            <div id="confirm-errors"></div>
+        `;
+
+        const dialog = this.querySelector("#dialog-more");
+        dialog.appendChild(checkoutContainer);
+     
+        const clientSecret = await this.getClientSecret();
+        console.log("clientSecret:", clientSecret);
+        this.initStripeCheckout(clientSecret);
     }
 
     render(worldHeritage) {
@@ -154,11 +173,13 @@ class WorldHeritageAd extends HTMLElement {
         </sl-dialog>
         `
 
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
+        // this.shadowRoot.appendChild(template.content.cloneNode(true));
+        this.appendChild(template.content.cloneNode(true));
 
-        const openDialogBtn = this.shadowRoot.querySelector("#open-dialog-btn");
-        const dialog = this.shadowRoot.querySelector("#dialog-more");
+        const openDialogBtn = this.querySelector("#open-dialog-btn");
+        const dialog = this.querySelector("#dialog-more");
         openDialogBtn.addEventListener('click', () => dialog.show());
+        console.log("RENDER DONE");
     }
 
     async findMyCoordinates() {
@@ -196,6 +217,73 @@ class WorldHeritageAd extends HTMLElement {
         } catch (error) {
             console.error(error);
             return {};
+        }
+    }
+
+    async getClientSecret() {
+        const response = await fetch("http://127.0.0.1:9001/create-checkout-session", { method: 'POST' });
+        const clientSecret = await response.json();
+        // console.log("clientSecret:", data);
+        return clientSecret
+    }
+
+    async initStripeCheckout(clientSecret) {
+        console.log("ummmmm");
+        
+        const stripe = Stripe(
+            'pk_test_51TZBpvRfGL28nQKFtwc6eldofWKeQpsJ9ozCVHaVgSXC2WcUNiaDEjzP0hdO53oiZ1Z7eMt2BlUyJePxRZIxwsRx00oK3unykG',
+        );
+
+        const checkout = stripe.initCheckoutElementsSdk({clientSecret});
+
+        checkout.on('change', (session) => {
+            this.shadowRoot.getElementById('pay-button').disabled = !session.canConfirm;
+        });
+
+        const loadActionsResult = await checkout.loadActions();
+
+        if (loadActionsResult.type === 'success') {
+            const session = loadActionsResult.actions.getSession();
+            const checkoutContainer = document.getElementById('checkout-container');
+
+            checkoutContainer.append(JSON.stringify(session.lineItems, null, 2));
+            checkoutContainer.append(document.createElement('br'));
+            checkoutContainer.append(`Total: ${session.total.total.amount}`);
+
+            const {actions} = loadActionsResult;
+            const emailInput = document.getElementById('email');
+            const emailErrors = document.getElementById('email-errors');
+
+            emailInput.addEventListener('input', () => {
+                // Clear any validation errors
+                emailErrors.textContent = '';
+            });
+
+            emailInput.addEventListener('blur', () => {
+                const newEmail = emailInput.value;
+                actions.updateEmail(newEmail).then((result) => {
+                    if (result.error) {
+                        emailErrors.textContent = result.error.message;
+                    }
+                });
+            });
+
+            const paymentElement = checkout.createPaymentElement();
+            paymentElement.mount('#payment-element');
+
+            const button = document.getElementById('pay-button');
+            const errors = document.getElementById('confirm-errors');
+
+            button.addEventListener('click', () => {
+                // Clear any validation errors
+                errors.textContent = '';
+
+                actions.confirm().then((result) => {
+                    if (result.type === 'error') {
+                        errors.textContent = result.error.message;
+                    }
+                });
+            });
         }
     }
 }
