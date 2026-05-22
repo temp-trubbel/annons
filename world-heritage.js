@@ -1,68 +1,28 @@
-class WorldHeritageAd extends HTMLElement {
+class WorldHeritage extends HTMLElement {
     constructor() {
         // Super måste alltid anropas först i konstruktorn
         super();
 
-        // Lägger till Shadow DOM
-        this.attachShadow({ mode: "open" });
-
-        // Laddar in Shoelace
-        this.loadShoelace();
-    }
-
-    loadShoelace() {
-        // Laddar in Shoelace CSS ifall det inte redan är inlagt
-        if (!document.querySelector("link[data-shoelacecss]")) {
-            const link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/themes/light.css";
-            link.dataset.shoelacecss = true;
-            document.head.appendChild(link);
-        }
-
-        // Laddar in Shoelace JS ifall det inte redan är inlagt
-        if (!document.querySelector("script[data-shoelacejs]")) {
-            const script = document.createElement("script");
-            script.type = "module";
-            script.src = "https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.1/cdn/shoelace.js";
-            script.dataset.shoelacejs = true;
-            document.head.appendChild(script);
-        }
+        // Lägger [INTE] till Shadow DOM!
+        // this.attachShadow({ mode: "open" });
     }
 
     async connectedCallback() {
-        // Render skeleton
-        // code...
-
         // Hitta användarens koordinater
-        const coordinates = await this.findMyCoordinates()
+        const coordinates = await this.findMyCoordinates();
         console.log("longitude:", coordinates.longitude);
         console.log("latitude:", coordinates.latitude);
 
         // GET världsarv från API
-        const worldHeritage = await this.getWorldHeritage(coordinates)
+        const worldHeritage = await this.getWorldHeritage(coordinates);
         console.log(worldHeritage);
-        
-        // Render final
-        this.render(worldHeritage)
 
-        // create Stripe checkout container in LIGHT DOM
-        const checkoutContainer = document.createElement('div');
-        checkoutContainer.id = 'checkout-container';
-        checkoutContainer.innerHTML =
-        `
-            <input type="text" id="email" />
-            <div id="email-errors"></div>
-            <div id="payment-element"></div>
-            <button id="pay-button">Pay</button>
-            <div id="confirm-errors"></div>
-        `;
+        // Render template
+        this.render(worldHeritage);
 
-        const dialog = this.querySelector("#dialog-more");
-        dialog.appendChild(checkoutContainer);
-     
         const clientSecret = await this.getClientSecret();
         console.log("clientSecret:", clientSecret);
+
         this.initStripeCheckout(clientSecret);
     }
 
@@ -102,83 +62,69 @@ class WorldHeritageAd extends HTMLElement {
             }
         </style>
 
-        <sl-card class="cardAd">
+        <div class="cardAd">
             <img class="cardImage" slot="image" src="${worldHeritage.main_image_url}" />
 
             <div class="cardBody">
-                <sl-avatar shape="square">
-                    <sl-icon slot="icon" name="bank"></sl-icon>
-                </sl-avatar>
+                <div>
+                    <div>Ikon för UNESCO</div>
+                </div>
 
                 <div class="cardText">
                     <h1>${worldHeritage.name_en}</h1>
                     <p class="shortDescription">${worldHeritage.short_description_en}</p>
                 </div>
 
-                <sl-button id="open-dialog-btn" variant="primary" size="large">Läs mer</sl-button>
+                <button id="open-dialog-btn">Läs mer</button>
             </div>
-        </sl-card>
+        </div>
 
-        <sl-dialog label="Prenumenera på tjänsten" id="dialog-more">
+        <div id="dialog-more">
             <div style="height: 150vh;">
                 <h1>${worldHeritage.name_en}</h1>
 
-                <sl-carousel pagination mouse-dragging loop>
-                    <sl-carousel-item>
-                        <img src="https://whc.unesco.org/document/218642">
-                    </sl-carousel-item>
-                </sl-carousel>
+                <img src="https://whc.unesco.org/document/218642">
 
                 <p>${worldHeritage.short_description_en}</p>
 
-                <sl-tab-group>
-                    <sl-tab slot="nav" panel="subscribe">Varför prenumerera?</sl-tab>
-                    <sl-tab slot="nav" panel="terms">Villkor</sl-tab>
-                    <sl-tab slot="nav" panel="installation">Installationsprocess</sl-tab>
+                <div>
+                    <p>Tab med Varför prenumerera?</p>
+                    <p>Tab med Villkor</p>
+                    <p>Tab med Installationsprocess</p>
+                </div>
 
-                    <sl-tab-panel name="subscribe">
-                        <p>Lorem ipsum1...</p>
-                    </sl-tab-panel>
-
-                    <sl-tab-panel name="terms">
-                        <p>Lorem ipsum2...</p>
-                    </sl-tab-panel>
-
-                    <sl-tab-panel name="installation">
-                        <p>Lorem ipsum3...</p>
-                    </sl-tab-panel>
-                </sl-tab-group>
-
-                <sl-divider style="--spacing: 2rem;"></sl-divider>
+                <hr>
+                <div id="checkout-container">
+                    <input type="text" id="email" />
+                    <div id="email-errors"></div>
+                    <div id="payment-element"></div>
+                    <button id="pay-button">Pay</button>
+                    <div id="confirm-errors"></div>
+                </div>
 
                 <form>
-                    <sl-input label="Namn"></sl-input>
-                    <sl-input label="E-post" type="email"></sl-input>
-                    <sl-input label="Telefonnummer"></sl-input>
+                    <input label="Namn"></input>
+                    <input label="E-post" type="email"></input>
+                    <input label="Telefonnummer"></input>
 
-                    <sl-checkbox>Jag har ett svenskt personnummer</sl-checkbox>
-                    <sl-input label="Personnummer" disabled></sl-input>
+                    <checkbox>Jag har ett svenskt personnummer</checkbox>
+                    <input label="Personnummer" disabled></input>
                 </form>
 
                 <form>
-                    <sl-input label="Betala med kort" placeholder="Kortnummer"></sl-input>
+                    <input label="Betala med kort" placeholder="Kortnummer"></input>
                     <div>
-                        <sl-input placeholder="MM / YY"></sl-input>
-                        <sl-input placeholder="CVC"></sl-input>
+                        <input placeholder="MM / YY"></input>
+                        <input placeholder="CVC"></input>
                     </div>
                 </form>
 
-                <sl-button variant="success" size="large" style="width: 100%;">Betala</sl-button>
+                <button>Betala</button>
             </div>
-        </sl-dialog>
+        </div>
         `
 
-        // this.shadowRoot.appendChild(template.content.cloneNode(true));
         this.appendChild(template.content.cloneNode(true));
-
-        const openDialogBtn = this.querySelector("#open-dialog-btn");
-        const dialog = this.querySelector("#dialog-more");
-        openDialogBtn.addEventListener('click', () => dialog.show());
         console.log("RENDER DONE");
     }
 
@@ -204,7 +150,6 @@ class WorldHeritageAd extends HTMLElement {
         }
     }
 
-    // bör ta in longitude & latittue från geolocation API
     async getWorldHeritage(coords) {
         try {
             // Hämtar världsarv från Backend API
@@ -237,7 +182,7 @@ class WorldHeritageAd extends HTMLElement {
         const checkout = stripe.initCheckoutElementsSdk({clientSecret});
 
         checkout.on('change', (session) => {
-            this.shadowRoot.getElementById('pay-button').disabled = !session.canConfirm;
+            document.getElementById('pay-button').disabled = !session.canConfirm;
         });
 
         const loadActionsResult = await checkout.loadActions();
@@ -288,5 +233,4 @@ class WorldHeritageAd extends HTMLElement {
     }
 }
 
-
-customElements.define("world-heritage-ad", WorldHeritageAd);
+customElements.define("world-heritage", WorldHeritage);
