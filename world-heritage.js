@@ -28,62 +28,41 @@ class WorldHeritage extends HTMLElement {
 
     render(worldHeritage) {
         // Skapar HTML-mall
+        let images = worldHeritage.images_urls.split(", ");
+        const dialogImages = images.slice(0, 1); // Skall vara slice(0, 5)
         const template = document.createElement("template");
         template.innerHTML =
         `
-        <style>
-            .cardAd {
-                max-width: 600px;
+        <div class="container">
+            <div class="cardAd">
+                <img class="cardImage" src="${worldHeritage.main_image_url}" />
 
-                & .cardImage {
-                    aspect-ratio: 4/1;
-                    object-fit: cover;
-                }
+                <div class="cardBody">
+                    <div class="logoContainer">
+                        <p>Ikon för UNESCO</p>
+                    </div>
 
-                & .cardBody {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
+                    <div class="cardText">
+                        <h1>${worldHeritage.name_en}</h1>
+                        <p class="shortDescription">${worldHeritage.short_description_en}</p>
+                    </div>
 
-                    sl-avatar {
-                        --size: 7rem;
-                    }
-
-                    & .cardText {
-                        h1, p {
-                            margin: 0;
-                        }
-                        
-                        & .shortDescription {
-
-                        }
-                    }
-                }
-            }
-        </style>
-
-        <div class="cardAd">
-            <img class="cardImage" slot="image" src="${worldHeritage.main_image_url}" />
-
-            <div class="cardBody">
-                <div>
-                    <div>Ikon för UNESCO</div>
+                    <button class="openDialogBtn" id="open-dialog-btn" command="show-modal" commandfor="dialog-more">Läs mer</button>
                 </div>
-
-                <div class="cardText">
-                    <h1>${worldHeritage.name_en}</h1>
-                    <p class="shortDescription">${worldHeritage.short_description_en}</p>
-                </div>
-
-                <button id="open-dialog-btn">Läs mer</button>
             </div>
-        </div>
 
-        <div id="dialog-more">
-            <div style="height: 150vh;">
+            <dialog id="dialog-more" class="dialogMore">
+                <button commandfor="dialog-more" command="close">Stäng</button>
+                
                 <h1>${worldHeritage.name_en}</h1>
 
-                <img src="https://whc.unesco.org/document/218642">
+                <div class="dialogImageContainer">
+                    ${
+                        dialogImages.map((imgUrl) => {
+                            return `<img class="dialogImage" src="${imgUrl}">`;
+                        })
+                    }
+                </div>
 
                 <p>${worldHeritage.short_description_en}</p>
 
@@ -93,7 +72,6 @@ class WorldHeritage extends HTMLElement {
                     <p>Tab med Installationsprocess</p>
                 </div>
 
-                <hr>
                 <div id="checkout-container">
                     <input type="text" id="email" />
                     <div id="email-errors"></div>
@@ -101,28 +79,9 @@ class WorldHeritage extends HTMLElement {
                     <button id="pay-button">Pay</button>
                     <div id="confirm-errors"></div>
                 </div>
-
-                <form>
-                    <input label="Namn"></input>
-                    <input label="E-post" type="email"></input>
-                    <input label="Telefonnummer"></input>
-
-                    <checkbox>Jag har ett svenskt personnummer</checkbox>
-                    <input label="Personnummer" disabled></input>
-                </form>
-
-                <form>
-                    <input label="Betala med kort" placeholder="Kortnummer"></input>
-                    <div>
-                        <input placeholder="MM / YY"></input>
-                        <input placeholder="CVC"></input>
-                    </div>
-                </form>
-
-                <button>Betala</button>
-            </div>
+            </dialog>
         </div>
-        `
+        `;
 
         this.appendChild(template.content.cloneNode(true));
         console.log("RENDER DONE");
@@ -168,7 +127,6 @@ class WorldHeritage extends HTMLElement {
     async getClientSecret() {
         const response = await fetch("http://127.0.0.1:9001/create-checkout-session", { method: 'POST' });
         const clientSecret = await response.json();
-        // console.log("clientSecret:", data);
         return clientSecret
     }
 

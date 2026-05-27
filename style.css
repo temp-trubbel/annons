@@ -1,0 +1,82 @@
+/*
+<style>
+    .cardAd {
+        max-width: 600px;
+
+        & .cardImage {
+            aspect-ratio: 4/1;
+            object-fit: cover;
+        }
+
+        & .cardBody {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            sl-avatar {
+                --size: 7rem;
+            }
+
+            & .cardText {
+                h1, p {
+                    margin: 0;
+                }
+                
+                & .shortDescription {
+
+                }
+            }
+        }
+    }
+</style>
+*/
+
+.container {
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .cardAd {
+        /* max-width: 600px; */
+        /* min-width: none; */
+        width: clamp(200px, 100%, 600px);
+
+        & .cardImage {
+            width: 100%;
+            aspect-ratio: 4/1;
+            object-fit: cover;
+        }
+
+        & .cardBody {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            border: 2px solid lightblue;
+            border-top: none;
+            border-radius: 0px 0px 8px 8px;
+
+            & .logoContainer {
+                background-color: lightblue;
+            }
+
+            & .openDialogBtn {
+                width: 100%;
+                padding: 8px 16px;
+            }
+        }
+    }
+
+    .dialogMore {
+        width: clamp(300px, 100%, 960px);
+
+        & .dialogImageContainer {
+            & .dialogImage {
+                width: 100%;
+                object-fit: cover;
+            }
+        }
+    }
+}
