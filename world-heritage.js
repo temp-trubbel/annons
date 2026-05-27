@@ -125,7 +125,7 @@ class WorldHeritage extends HTMLElement {
     }
 
     async getClientSecret() {
-        const response = await fetch("http://127.0.0.1:9001/create-checkout-session", { method: 'POST' });
+        const response = await fetch("http://127.0.0.1:8000/checkout-create-session", { method: 'POST' });
         const clientSecret = await response.json();
         return clientSecret
     }
