@@ -20,10 +20,8 @@ class WorldHeritage extends HTMLElement {
         // Render template
         this.render(worldHeritage);
 
-        const clientSecret = await this.getClientSecret();
-        console.log("clientSecret:", clientSecret);
-
-        this.initStripeCheckout(clientSecret);
+        // handleRegister || handleCreateAccount
+        this.handleSubmit();
     }
 
     render(worldHeritage) {
@@ -71,6 +69,28 @@ class WorldHeritage extends HTMLElement {
                     <p>Tab med Villkor</p>
                     <p>Tab med Installationsprocess</p>
                 </div>
+
+                <form id="myForm">
+                    <div>
+                        <label for="firstname">Förnamn:</label>
+                        <input id="firstname" name="firstname"></input>
+
+                        <label for="lastname">Efternamn:</label>
+                        <input id="lastname" name="lastname"></input>
+                    <div>
+
+                    <label for="email">E-post:</label>
+                    <input id="email" name="email" type="email"></input>
+
+                    <label for="phone">Telefonnummer:</label>
+                    <input id="phone" name="phone" type="phone"></input>
+
+                    <checkbox>Jag har ett svenskt personnummmer</checkbox>
+                    <label for="ssn">Personnummer:</label>
+                    <input id="ssn" name="ssn"></input>
+
+                    <button type=submit">Skapa konto</button>
+                </form>
 
                 <div id="checkout-container">
                     <input type="text" id="email" />
@@ -124,8 +144,35 @@ class WorldHeritage extends HTMLElement {
         }
     }
 
-    async getClientSecret() {
-        const response = await fetch("http://127.0.0.1:8000/checkout-create-session", { method: 'POST' });
+    handleSubmit() {
+        const form = document.getElementById("myForm");
+
+        // Lägger till händelselyssnare på formulär
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault(); // Stoppar omladdning av sidan
+
+            const formData = new FormData(form);
+
+            // Convert to plain object
+            const data = Object.fromEntries(formData.entries());
+            // console.log(values);
+
+            const clientSecret = await this.getClientSecret(data);
+            console.log(clientSecret);
+
+            this.initStripeCheckout(clientSecret);
+        });
+    }
+
+    async getClientSecret(data) {
+        const response = await fetch("http://127.0.0.1:8000/checkout", {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            method: "POST",
+            body: JSON.stringify(data),
+        });
         const clientSecret = await response.json();
         return clientSecret
     }
