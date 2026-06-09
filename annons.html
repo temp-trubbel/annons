@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annons</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <script src="https://js.stripe.com/dahlia/stripe.js"></script>
+</head>
+
+<body>
+    <!-- Advertisment Card -->
+    <div id="ad-card" class="card border-0 text-white w-100" style="height: 130px;">
+        <div class="d-flex justify-content-center align-items-center h-100 gap-2 bg-secondary-subtle">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted m-0">Laddar annons...</p>
+        </div>
+
+        <!-- Ad card innehåll med render() -->
+    </div>
+
+    <!-- Modal -->
+    <div id="show-this" class="d-none">
+        <!-- Modal/popup innehåll med render() -->
+    </div>
+
+    <script>
+        async function main() {
+            // Hitta användarens koordinater
+            const coordinates = await findMyCoordinates();
+            if (coordinates) {
+                console.log("longitude:", coordinates.longitude);
+                console.log("latitude:", coordinates.latitude);
+            }
+
+            // GET världsarv baserat på användarens koordinater från API
+            const worldHeritage = await getWorldHeritage(coordinates);
+            console.log(worldHeritage);
+
+            // Render det riktiga innehållet (ersätt placeholder div:en)
+            render(worldHeritage);
+
+            // handleRegister || handleCreateAccount
+            handleSubmit();
+        }
+        main();
+
+        async function findMyCoordinates() {
+            if (navigator.geolocation) {              
+                return new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(success, error);
+
+                    function success(position) {
+                        const crd = position.coords;
+                        resolve(crd);
+                    }
+
+                    function error(error) {
+                        console.error(error.message)
+                        resolve(null);
+                    }
+                });
+            }
+
+            else {
+                /* geolocation IS NOT supported */
+                console.error("Geolocation is not supported by this browser.");
+            }
+        }
+
+        async function getWorldHeritage(coords) {
+            let url;
+            if (coords) {
+                url = `http://localhost:8000/something?longitude=${coords.longitude}&latitude=${coords.latitude}`
+            }
+            else {
+                url = "http://localhost:8000/something"
+            }
+
+            try {
+                // Hämtar världsarv från Backend API
+                const response = await fetch(url);
+                const data = await response.json();
+
+                // Retunerar världsarv
+                return data;
+
+            } catch (error) {
+                console.error(error);
+                return {};
+            }
+        }
+
+        function render(worldHeritage) {
+            const adCard = document.getElementById("ad-card");
+            adCard.innerHTML =
+            `
+            <img src="${worldHeritage.main_image_url}" class="card-img h-100 object-fit-cover rounded-0">
+
+            <div class="card-img-overlay rounded-0 bg-black bg-opacity-50 hstack gap-3 justify-content-around">
+                <div>
+                    <h3 class="card-title">Upptäck världsarv nära dig!</h3>
+                </div>
+                <div class="">
+                    <h5 class="card-subtitle mb-1">${worldHeritage.name_en}</h5>
+                    <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis dolor tempora ducimus voluptas officiis sed?</p>
+                </div>
+                <div>
+                    <button id="more-btn" class="btn btn-primary text-nowrap">Läs mer om tjänsten</button>
+                </div>
+            </div>
+            `;
+
+            let images = worldHeritage.images_urls.split(", ");
+            const carouselImages = images.slice(0, 5);
+            const showThis = document.getElementById("show-this");
+            showThis.innerHTML =
+            `
+            <button id="close-modal-btn" type="button" class="btn-close" aria-label="Close"></button>
+
+            <h1 class="display-4">${worldHeritage.name_en}</h1>
+
+            <div id="carousel" class="carousel slide">
+                <div class="carousel-indicators">
+                    ${
+                        carouselImages.map((imgUrl, index) => {
+                            return `
+                            <button type="button" data-bs-target="#carousel" data-bs-slide-to="${index}" class="${index == 0 ? 'active' : ''}"></button>
+                            `;
+                        }).join('')
+                    }
+                </div>
+
+                <div class="carousel-inner">
+                    ${
+                        carouselImages.map((imgUrl, index) => {
+                            return `
+                            <div class="carousel-item ${index == 0 ? 'active' : ''} ratio ratio-21x9">
+                                <img src="${imgUrl}" class="d-block w-100 object-fit-cover">
+                            </div>
+                            `;
+                        }).join('')
+                    }
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+
+                <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+
+            <div class="position-relative">
+                <p>${worldHeritage.short_description_en}</p>
+                
+                <div class="w-100 h-50 position-absolute bottom-0 start-0 pe-none" style="background: linear-gradient(to top, #fff, transparent);"></div>
+            </div>
+
+            <div class="text-center my-5">
+                <p class="text-uppercase font-monospace fw-bold">Utforska alla världsarv. Börja din resa nu.</p>
+
+                <p class="fs-3 px-5">För det låga priset av <span class="fw-bold">59 kr per månad</span> får du obegränsad tillgång till världsarvstjänsten.</p>
+
+                <button class="btn btn-outline-primary w-50 text-uppercase font-monospace fw-bold">
+                    Prenumerera för mer / Kom igång <i class="bi bi-arrow-down"></i>
+                </button>
+            </div>
+
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-subscribe-tab" data-bs-toggle="tab" data-bs-target="#nav-subscribe" type="button" role="tab">
+                        <i class="bi bi-currency-dollar"></i> Varför prenumerera?
+                    </button>
+                    <button class="nav-link" id="nav-terms-tab" data-bs-toggle="tab" data-bs-target="#nav-terms" type="button" role="tab">
+                        <i class="bi bi-file-earmark-text"></i> Villkor
+                    </button>
+                    <button class="nav-link" id="nav-install-tab" data-bs-toggle="tab" data-bs-target="#nav-install" type="button" role="tab">
+                        <i class="bi bi-plug"></i> Installation
+                    </button>
+                </div>
+            </nav>
+            <div class="tab-content mb-5" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-subscribe" role="tabpanel" tabindex="0">
+                    ...
+                </div>
+                <div class="tab-pane fade" id="nav-terms" role="tabpanel" tabindex="0">
+                    ...
+                </div>
+                <div class="tab-pane fade" id="nav-install" role="tabpanel" tabindex="0">
+                    ...
+                </div>
+            </div>
+
+            <div class="container-fluid">
+                <h4 class="mb-3">Personuppgifter</h4>
+                <form id="myForm" class="row gy-3">
+                    <div class="col-sm-6">
+                        <label for="firstname" class="form-label">Förnamn</label>
+                        <input type="text" class="form-control" id="firstname" name="firstname" required>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label for="lastname" class="form-label">Efternamn</label>
+                        <input type="text" class="form-control" id="lastname" name="lastname" required>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="email" class="form-label">E-post</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="phone" class="form-label">Telefonnummer</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" required>
+                    </div>
+
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
+                        <label class="form-check-label" for="switchCheckDefault">Jag har ett svenskt personnummmer</label>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="ssn" class="form-label">Personnummer</label>
+                        <input type="number" class="form-control" id="ssn" name="ssn">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Skapa konto</button>
+                </form>
+
+                <hr class="my-4">
+
+                <h4>Betalning</h4>
+                <!-- Stripe iFrames -->
+                <div id="checkout-container">
+                    <div id="payment-element"></div>
+                    <button id="pay-button" class="btn btn-success">Betala</button>
+                    <div id="confirm-errors"></div>
+                </div>
+            </div>
+            `;
+
+            const button = document.getElementById("more-btn");
+            const closeModalButton = document.getElementById("close-modal-btn");
+            
+            // För att öppna popup/modalen
+            button.addEventListener("click", async () => {
+                var msg = await JSON.stringify( {"endpoint": "open-popup"} );
+                console.log(msg);
+                // `${document.URL}`
+                window.parent.postMessage( {WorkflowAPICall: msg} );
+
+                // Dölj med class invisible eller d-none ad card div:en
+                const card = document.getElementById("ad-card");
+                // card.classList.add("invisible");
+                card.classList.add("d-none");
+
+                // Visa nu modal/dialog/popup
+                const showThis = document.getElementById("show-this");
+                showThis.classList.remove("d-none");
+            });
+
+            // För att stänga popup/modalen
+            closeModalButton.addEventListener("click", async () => {
+                var msg = await JSON.stringify( {"endpoint": "close-popup"} );
+                console.log(msg);
+                window.parent.postMessage( {WorkflowAPICall: msg} );
+
+                // Dölj modal/dialog/popup (#show-this) med .add("d-none")
+                const showThis = document.getElementById("show-this");
+                showThis.classList.add("d-none");
+
+                // Visa ad card div:en (#ad-card) igen med .remove("d-none")
+                const card = document.getElementById("ad-card");
+                card.classList.remove("d-none");
+            });
+        }
+    
+        function handleSubmit() {
+            const form = document.getElementById("myForm");
+
+            // Lägger till händelselyssnare på personuppgifter (skapa konto) formulär
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault(); // Stoppar omladdning av sidan
+
+                const formData = new FormData(form);
+
+                // Convert to plain object
+                const data = Object.fromEntries(formData.entries());
+                console.log("Form data:", data);
+
+                // Kallar på backend för att få Stripe client secret sträng
+                const clientSecret = await getClientSecret(data);
+                console.log("Stripe ClientSecret:", clientSecret);
+
+                // Init stripe checkout baserat på Stripe client secret
+                initStripeCheckout(clientSecret);
+            });
+        }
+    
+        async function getClientSecret(data) {
+            const response = await fetch("http://127.0.0.1:8000/checkout", {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                method: "POST",
+                body: JSON.stringify(data),
+            });
+
+            const clientSecret = await response.json();
+
+            return clientSecret;
+        }
+    
+        async function initStripeCheckout(clientSecret) {
+            console.log("Init Stripe Checkout");
+
+            const stripe = Stripe(
+                'pk_test_51TZBpvRfGL28nQKFtwc6eldofWKeQpsJ9ozCVHaVgSXC2WcUNiaDEjzP0hdO53oiZ1Z7eMt2BlUyJePxRZIxwsRx00oK3unykG',
+            );
+
+            const checkout = stripe.initCheckoutElementsSdk({clientSecret});
+
+            checkout.on('change', (session) => {
+                document.getElementById('pay-button').disabled = !session.canConfirm;
+            });
+
+            const loadActionsResult = await checkout.loadActions();
+
+            if (loadActionsResult.type === 'success') {
+                const session = loadActionsResult.actions.getSession();
+                const checkoutContainer = document.getElementById('checkout-container');
+
+                // checkoutContainer.append(JSON.stringify(session.lineItems, null, 2));
+                // checkoutContainer.append(document.createElement('br'));
+                // checkoutContainer.append(`Total: ${session.total.total.amount}`);
+
+                const {actions} = loadActionsResult;
+
+                const paymentElement = checkout.createPaymentElement();
+                paymentElement.mount('#payment-element');
+
+                const button = document.getElementById('pay-button');
+                const errors = document.getElementById('confirm-errors');
+
+                button.addEventListener('click', () => {
+                    // Clear any validation errors
+                    errors.textContent = '';
+
+                    actions.confirm().then((result) => {
+                        if (result.type === 'error') {
+                            errors.textContent = result.error.message;
+                        }
+                    });
+                });
+            }
+        }
+    </script>
+</body>
+</html>
