@@ -30,6 +30,8 @@
 
     <script>
         async function main() {
+            // TODO: Ställ dynamiskt in språket på detta HTML dokument utifrån parent sidans språk
+
             // Hitta användarens koordinater
             const coordinates = await findMyCoordinates();
             if (coordinates) {
@@ -44,7 +46,7 @@
             // Render det riktiga innehållet (ersätt placeholder div:en)
             render(worldHeritage);
 
-            // handleRegister || handleCreateAccount
+            // Hantering av personuppgifter submit
             handleSubmit();
         }
         main();
@@ -199,50 +201,74 @@
                 </div>
             </div>
 
-            <div class="container-fluid">
-                <h4 class="mb-3">Personuppgifter</h4>
-                <form id="myForm" class="row gy-3">
-                    <div class="col-sm-6">
-                        <label for="firstname" class="form-label">Förnamn</label>
-                        <input type="text" class="form-control" id="firstname" name="firstname" required>
+            <div class="accordion container-fluid" id="accordion-form">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                            <span class="badge rounded-pill text-bg-primary me-1">1</span> Personuppgifter
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordion-form">
+                        <div class="accordion-body">
+                            <form id="form-personaldetails">
+                                <div class="row g-3">
+                                    <div class="col-sm">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="firstname" name="firstname" placeholder="John" required>
+                                            <label for="firstname">Förnamn</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Doe" required>
+                                            <label for="lastname">Efternamn</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-floating my-3">
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                                    <label for="email">E-post</label>
+                                </div>
+
+                                <div class="form-floating my-3">
+                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="+46723624592" required>
+                                    <label for="phone">Mobilnummer</label>
+                                </div>
+
+                                <div class="form-check my-3">
+                                    <input class="form-check-input" type="checkbox" data-bs-toggle="collapse" data-bs-target="#collapse-ssn" value="" id="checkDefault">
+                                    <label class="form-check-label" for="checkDefault">Jag har ett svenskt personnummer</label>
+                                </div>
+
+                                <div class="form-floating my-3 collapse" id="collapse-ssn">
+                                    <input type="tel" class="form-control" id="ssn" name="ssn" placeholder="198504019999">
+                                    <label for="ssn">Personnummer</label>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Gå vidare till betalning</button>
+                            </form>
+                        </div>
                     </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                            <span class="badge rounded-pill text-bg-primary me-1">2</span> Betalning
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordion-form">
+                        <div class="accordion-body">
+                            <form id="form-payment">
+                                <div id="card-element">
+                                    <!-- the card element will be mounted here -->
+                                </div>
 
-                    <div class="col-sm-6">
-                        <label for="lastname" class="form-label">Efternamn</label>
-                        <input type="text" class="form-control" id="lastname" name="lastname" required>
+                                <button type="submit" class="btn btn-success">Betala</button>
+                            </form>
+                        </div>
                     </div>
-
-                    <div class="col-12">
-                        <label for="email" class="form-label">E-post</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="phone" class="form-label">Telefonnummer</label>
-                        <input type="tel" class="form-control" id="phone" name="phone" required>
-                    </div>
-
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
-                        <label class="form-check-label" for="switchCheckDefault">Jag har ett svenskt personnummmer</label>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="ssn" class="form-label">Personnummer</label>
-                        <input type="number" class="form-control" id="ssn" name="ssn">
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Skapa konto</button>
-                </form>
-
-                <hr class="my-4">
-
-                <h4>Betalning</h4>
-                <!-- Stripe iFrames -->
-                <div id="checkout-container">
-                    <div id="payment-element"></div>
-                    <button id="pay-button" class="btn btn-success">Betala</button>
-                    <div id="confirm-errors"></div>
                 </div>
             </div>
             `;
@@ -284,7 +310,7 @@
         }
     
         function handleSubmit() {
-            const form = document.getElementById("myForm");
+            const form = document.getElementById("form-personaldetails");
 
             // Lägger till händelselyssnare på personuppgifter (skapa konto) formulär
             form.addEventListener("submit", async (event) => {
@@ -300,13 +326,19 @@
                 const clientSecret = await getClientSecret(data);
                 console.log("Stripe ClientSecret:", clientSecret);
 
-                // Init stripe checkout baserat på Stripe client secret
-                initStripeCheckout(clientSecret);
+                // TODO: Hantering av ifall clientSecret är null
+                if (!clientSecret) {
+                    alert("clientSecret är null! Någon/några av personuppgifterna är redan upptagna!")
+                    return
+                }
+
+                // Init Stripe Payment
+                initStripePayment(clientSecret);
             });
         }
     
         async function getClientSecret(data) {
-            const response = await fetch("http://127.0.0.1:8000/checkout", {
+            const response = await fetch("http://127.0.0.1:8000/secret", {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
@@ -319,49 +351,35 @@
 
             return clientSecret;
         }
-    
-        async function initStripeCheckout(clientSecret) {
-            console.log("Init Stripe Checkout");
 
-            const stripe = Stripe(
-                'pk_test_51TZBpvRfGL28nQKFtwc6eldofWKeQpsJ9ozCVHaVgSXC2WcUNiaDEjzP0hdO53oiZ1Z7eMt2BlUyJePxRZIxwsRx00oK3unykG',
-            );
+        async function initStripePayment(clientSecret) {
+            stripe = Stripe('pk_test_51TZBpvRfGL28nQKFtwc6eldofWKeQpsJ9ozCVHaVgSXC2WcUNiaDEjzP0hdO53oiZ1Z7eMt2BlUyJePxRZIxwsRx00oK3unykG');
 
-            const checkout = stripe.initCheckoutElementsSdk({clientSecret});
-
-            checkout.on('change', (session) => {
-                document.getElementById('pay-button').disabled = !session.canConfirm;
+            const elements = stripe.elements({
+                locale: "en" // TODO: Bör vara dynamiskt värde från parent sida (document.documentElement.lang)
             });
+            cardElement = elements.create("card");
+            cardElement.mount("#card-element");
 
-            const loadActionsResult = await checkout.loadActions();
+            const form = document.querySelector('#form-payment');
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
 
-            if (loadActionsResult.type === 'success') {
-                const session = loadActionsResult.actions.getSession();
-                const checkoutContainer = document.getElementById('checkout-container');
-
-                // checkoutContainer.append(JSON.stringify(session.lineItems, null, 2));
-                // checkoutContainer.append(document.createElement('br'));
-                // checkoutContainer.append(`Total: ${session.total.total.amount}`);
-
-                const {actions} = loadActionsResult;
-
-                const paymentElement = checkout.createPaymentElement();
-                paymentElement.mount('#payment-element');
-
-                const button = document.getElementById('pay-button');
-                const errors = document.getElementById('confirm-errors');
-
-                button.addEventListener('click', () => {
-                    // Clear any validation errors
-                    errors.textContent = '';
-
-                    actions.confirm().then((result) => {
-                        if (result.type === 'error') {
-                            errors.textContent = result.error.message;
-                        }
-                    });
+                // Skapa payment method och bekräfta payment intent
+                const result = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: cardElement
+                    }
                 });
-            }
+
+                // Hantera resultat från Stripes egna Backend HTTP Response till stripe.confirmCardPayment()
+                if (result.error) {
+                    alert(`Payment failed: ${result.error.message}`);
+                } else {
+                    alert("Success!");
+                    // TODO: Här bör orderbekräftelse visas
+                }
+            });
         }
     </script>
 </body>
