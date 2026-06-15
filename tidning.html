@@ -327,8 +327,8 @@ footer {
         switch (eventDataParsed.endpoint) {
             case "open-popup":
                 console.log("Entered case 'open-popup'");
-                document.getElementById("myIframe").height = "100%";
-                document.getElementById("myIframe").width = "100%";
+                document.getElementById("myIframe").style.height = "100%";
+                document.getElementById("myIframe").style.width = "100%";
                 document.getElementById("myIframe").style.padding = "2rem 5%";
                 document.getElementById("myIframe").style.position = "fixed";
                 document.getElementById("myIframe").style.left = "50%";
@@ -338,9 +338,12 @@ footer {
                 document.getElementById("myIframe").style.transform = "translate(-50%, -50%)";
                 document.getElementById("myIframe").style.backgroundColor = "rgba(0,0,0,.4)";
                 document.getElementById("myIframe").style.zIndex = "9999999999999999";
+                document.querySelector("body").style.overflow = "hidden";
                 break;
             case "close-popup":
                 console.log("Entered case 'close-popup'");
+                document.getElementById("myIframe").removeAttribute("style");
+                document.querySelector("body").style.overflow = "";
         }
     }, false);
 </script>
