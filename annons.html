@@ -17,14 +17,13 @@
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="text-muted m-0">Laddar annons...</p>
         </div>
 
         <!-- Ad card innehåll med render() -->
     </div>
 
     <!-- Modal -->
-    <div id="show-this" class="d-none">
+    <div id="popup" class="d-none">
         <!-- Modal/popup innehåll med render() -->
     </div>
 
@@ -48,6 +47,8 @@
 
             // Hantering av personuppgifter submit
             handleSubmit();
+
+            // renderOrderConfirmation();
         }
         main();
 
@@ -119,154 +120,156 @@
 
             let images = worldHeritage.images_urls.split(", ");
             const carouselImages = images.slice(0, 5);
-            const showThis = document.getElementById("show-this");
+            const showThis = document.getElementById("popup");
             showThis.innerHTML =
             `
             <button id="close-modal-btn" type="button" class="btn-close" aria-label="Close"></button>
 
-            <h1 class="display-4">${worldHeritage.name_en}</h1>
+            <div id="offer" class="container-fluid">
+                <h1 class="display-4">${worldHeritage.name_en}</h1>
 
-            <div id="carousel" class="carousel slide">
-                <div class="carousel-indicators">
-                    ${
-                        carouselImages.map((imgUrl, index) => {
-                            return `
-                            <button type="button" data-bs-target="#carousel" data-bs-slide-to="${index}" class="${index == 0 ? 'active' : ''}"></button>
-                            `;
-                        }).join('')
-                    }
-                </div>
+                <div id="carousel" class="carousel slide">
+                    <div class="carousel-indicators">
+                        ${
+                            carouselImages.map((imgUrl, index) => {
+                                return `
+                                <button type="button" data-bs-target="#carousel" data-bs-slide-to="${index}" class="${index == 0 ? 'active' : ''}"></button>
+                                `;
+                            }).join('')
+                        }
+                    </div>
 
-                <div class="carousel-inner">
-                    ${
-                        carouselImages.map((imgUrl, index) => {
-                            return `
-                            <div class="carousel-item ${index == 0 ? 'active' : ''} ratio ratio-21x9">
-                                <img src="${imgUrl}" class="d-block w-100 object-fit-cover">
-                            </div>
-                            `;
-                        }).join('')
-                    }
-                </div>
+                    <div class="carousel-inner">
+                        ${
+                            carouselImages.map((imgUrl, index) => {
+                                return `
+                                <div class="carousel-item ${index == 0 ? 'active' : ''} ratio ratio-21x9">
+                                    <img src="${imgUrl}" class="d-block w-100 object-fit-cover">
+                                </div>
+                                `;
+                            }).join('')
+                        }
+                    </div>
 
-                <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-
-                <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-            </div>
-
-            <div class="position-relative">
-                <p>${worldHeritage.short_description_en}</p>
-                
-                <div class="w-100 h-50 position-absolute bottom-0 start-0 pe-none" style="background: linear-gradient(to top, #fff, transparent);"></div>
-            </div>
-
-            <div class="text-center my-5">
-                <p class="text-uppercase font-monospace fw-bold">Utforska alla världsarv. Börja din resa nu.</p>
-
-                <p class="fs-3 px-5">För det låga priset av <span class="fw-bold">59 kr per månad</span> får du obegränsad tillgång till världsarvstjänsten.</p>
-
-                <button class="btn btn-outline-primary w-50 text-uppercase font-monospace fw-bold">
-                    Prenumerera för mer / Kom igång <i class="bi bi-arrow-down"></i>
-                </button>
-            </div>
-
-            <nav>
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <button class="nav-link active" id="nav-subscribe-tab" data-bs-toggle="tab" data-bs-target="#nav-subscribe" type="button" role="tab">
-                        <i class="bi bi-currency-dollar"></i> Varför prenumerera?
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
                     </button>
-                    <button class="nav-link" id="nav-terms-tab" data-bs-toggle="tab" data-bs-target="#nav-terms" type="button" role="tab">
-                        <i class="bi bi-file-earmark-text"></i> Villkor
-                    </button>
-                    <button class="nav-link" id="nav-install-tab" data-bs-toggle="tab" data-bs-target="#nav-install" type="button" role="tab">
-                        <i class="bi bi-plug"></i> Installation
+
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
                     </button>
                 </div>
-            </nav>
-            <div class="tab-content mb-5" id="nav-tabContent">
-                <div class="tab-pane fade show active" id="nav-subscribe" role="tabpanel" tabindex="0">
-                    ...
-                </div>
-                <div class="tab-pane fade" id="nav-terms" role="tabpanel" tabindex="0">
-                    ...
-                </div>
-                <div class="tab-pane fade" id="nav-install" role="tabpanel" tabindex="0">
-                    ...
-                </div>
-            </div>
 
-            <div class="accordion container-fluid" id="accordion-form">
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                            <span class="badge rounded-pill text-bg-primary me-1">1</span> Personuppgifter
+                <div class="position-relative">
+                    <p>${worldHeritage.short_description_en}</p>
+                    
+                    <div class="w-100 h-50 position-absolute bottom-0 start-0 pe-none" style="background: linear-gradient(to top, #fff, transparent);"></div>
+                </div>
+
+                <div class="text-center my-5">
+                    <p class="text-uppercase font-monospace fw-bold">Utforska alla världsarv. Börja din resa nu.</p>
+
+                    <p class="fs-3 px-5">För det låga priset av <span class="fw-bold">59 kr per månad</span> får du obegränsad tillgång till världsarvstjänsten.</p>
+
+                    <button class="btn btn-outline-primary w-50 text-uppercase font-monospace fw-bold">
+                        Prenumerera för mer / Kom igång <i class="bi bi-arrow-down"></i>
+                    </button>
+                </div>
+
+                <nav>
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        <button class="nav-link active" id="nav-subscribe-tab" data-bs-toggle="tab" data-bs-target="#nav-subscribe" type="button" role="tab">
+                            <i class="bi bi-currency-dollar"></i> Varför prenumerera?
                         </button>
-                    </h2>
-                    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordion-form">
-                        <div class="accordion-body">
-                            <form id="form-personaldetails">
-                                <div class="row g-3">
-                                    <div class="col-sm">
-                                        <div class="form-floating">
-                                            <input type="text" class="form-control" id="firstname" name="firstname" placeholder="John" required>
-                                            <label for="firstname">Förnamn</label>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm">
-                                        <div class="form-floating">
-                                            <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Doe" required>
-                                            <label for="lastname">Efternamn</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="form-floating my-3">
-                                    <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
-                                    <label for="email">E-post</label>
-                                </div>
-
-                                <div class="form-floating my-3">
-                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="+46723624592" required>
-                                    <label for="phone">Mobilnummer</label>
-                                </div>
-
-                                <div class="form-check my-3">
-                                    <input class="form-check-input" type="checkbox" data-bs-toggle="collapse" data-bs-target="#collapse-ssn" value="" id="checkDefault">
-                                    <label class="form-check-label" for="checkDefault">Jag har ett svenskt personnummer</label>
-                                </div>
-
-                                <div class="form-floating my-3 collapse" id="collapse-ssn">
-                                    <input type="tel" class="form-control" id="ssn" name="ssn" placeholder="198504019999">
-                                    <label for="ssn">Personnummer</label>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary">Gå vidare till betalning</button>
-                            </form>
-                        </div>
+                        <button class="nav-link" id="nav-terms-tab" data-bs-toggle="tab" data-bs-target="#nav-terms" type="button" role="tab">
+                            <i class="bi bi-file-earmark-text"></i> Villkor
+                        </button>
+                        <button class="nav-link" id="nav-install-tab" data-bs-toggle="tab" data-bs-target="#nav-install" type="button" role="tab">
+                            <i class="bi bi-plug"></i> Installation
+                        </button>
+                    </div>
+                </nav>
+                <div class="tab-content mb-5" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="nav-subscribe" role="tabpanel" tabindex="0">
+                        ...
+                    </div>
+                    <div class="tab-pane fade" id="nav-terms" role="tabpanel" tabindex="0">
+                        ...
+                    </div>
+                    <div class="tab-pane fade" id="nav-install" role="tabpanel" tabindex="0">
+                        ...
                     </div>
                 </div>
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                            <span class="badge rounded-pill text-bg-primary me-1">2</span> Betalning
-                        </button>
-                    </h2>
-                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordion-form">
-                        <div class="accordion-body">
-                            <form id="form-payment">
-                                <div id="card-element">
-                                    <!-- the card element will be mounted here -->
-                                </div>
 
-                                <button type="submit" class="btn btn-success">Betala</button>
-                            </form>
+                <div class="accordion container-fluid" id="accordion-form">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button id="accordion-header-personaldetails-btn" class="accordion-button pe-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                <span class="badge rounded-pill text-bg-primary me-1">1</span> Personuppgifter
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordion-form">
+                            <div class="accordion-body">
+                                <form id="form-personaldetails">
+                                    <div class="row g-3">
+                                        <div class="col-sm">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="firstname" name="firstname" placeholder="John" required>
+                                                <label for="firstname">Förnamn</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Doe" required>
+                                                <label for="lastname">Efternamn</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-floating my-3">
+                                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                                        <label for="email">E-post</label>
+                                    </div>
+
+                                    <div class="form-floating my-3">
+                                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="+46723624592" required>
+                                        <label for="phone">Mobilnummer</label>
+                                    </div>
+
+                                    <div class="form-check my-3">
+                                        <input class="form-check-input" type="checkbox" data-bs-toggle="collapse" data-bs-target="#collapse-ssn" value="" id="checkDefault">
+                                        <label class="form-check-label" for="checkDefault">Jag har ett svenskt personnummer</label>
+                                    </div>
+
+                                    <div class="form-floating my-3 collapse" id="collapse-ssn">
+                                        <input type="tel" class="form-control" id="ssn" name="ssn" placeholder="198504019999">
+                                        <label for="ssn">Personnummer</label>
+                                    </div>
+
+                                    <button id="personaldetails-submit-btn" type="submit" class="btn btn-primary">Gå vidare till betalning</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button id="accordion-header-payment-btn" class="accordion-button pe-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                <span class="badge rounded-pill text-bg-primary me-1">2</span> Betalning
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordion-form">
+                            <div class="accordion-body">
+                                <form id="form-payment">
+                                    <div id="card-element">
+                                        <!-- the card element will be mounted here -->
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success">Betala</button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -289,7 +292,7 @@
                 card.classList.add("d-none");
 
                 // Visa nu modal/dialog/popup
-                const showThis = document.getElementById("show-this");
+                const showThis = document.getElementById("popup");
                 showThis.classList.remove("d-none");
             });
 
@@ -299,8 +302,8 @@
                 console.log(msg);
                 window.parent.postMessage( {WorkflowAPICall: msg} );
 
-                // Dölj modal/dialog/popup (#show-this) med .add("d-none")
-                const showThis = document.getElementById("show-this");
+                // Dölj modal/dialog/popup (#popup) med .add("d-none")
+                const showThis = document.getElementById("popup");
                 showThis.classList.add("d-none");
 
                 // Visa ad card div:en (#ad-card) igen med .remove("d-none")
@@ -315,6 +318,8 @@
             // Lägger till händelselyssnare på personuppgifter (skapa konto) formulär
             form.addEventListener("submit", async (event) => {
                 event.preventDefault(); // Stoppar omladdning av sidan
+
+                // TODO: Spinner för submit knappen & disable form inputs vid submit av personuppgifter
 
                 const formData = new FormData(form);
 
@@ -331,6 +336,12 @@
                     alert("clientSecret är null! Någon/några av personuppgifterna är redan upptagna!")
                     return
                 }
+
+                // Stänger Personuppgifter accordion formulär och öppnar Betalning accordion formulär
+                document.getElementById("accordion-header-personaldetails-btn").classList.add("collapsed");
+                document.getElementById("collapseOne").classList.remove("show");
+                document.getElementById("accordion-header-payment-btn").classList.remove("collapsed");
+                document.getElementById("collapseTwo").classList.add("show");
 
                 // Init Stripe Payment
                 initStripePayment(clientSecret);
@@ -376,10 +387,45 @@
                 if (result.error) {
                     alert(`Payment failed: ${result.error.message}`);
                 } else {
-                    alert("Success!");
+                    // alert("Success!");
                     // TODO: Här bör orderbekräftelse visas
+
+                    // Dölj offer 👍
+                    document.getElementById("offer").classList.add("d-none");
+
+                    // Lägg Spinner som laddar eller placeholder skeleton inuti orderbekräftelse div 👍
+
+                    // Hämta (HTTP Request) dynamisk order/payment/subscription data 👍
+                    // Kanske Request -> Backend (endpoint: /payment-confirmation||order-confirmation)
+                    // Går det bra att hämta datan så dölj/ta bort spinner
+
+                    // Render (visa dynamiskt innehåll/data med innerHTML inuti orderbekräftelse div)
+                    // den tar in som argument datan som kommit från /order-confirmation
+                    renderOrderConfirmation();
                 }
             });
+        }
+
+        function renderOrderConfirmation() {
+            // Skapar container för orderbekräftelse
+            const orderConfirmationContainer = document.createElement("div");
+            
+
+            orderConfirmationContainer.innerHTML =
+            `
+            <div class="container-fluid w-100 vh-100">
+                <div class="d-flex flex-column justify-content-center align-items-center h-100">
+                    <i class="bi bi-check2-circle" style="font-size: 10rem; color: green;"></i>
+
+                    <h1>Din betalning är genomförd!</h1>
+                    <p>Tack för din prenumation. Du kommer snarast att få ett mejl till din epost med instruktioner på vad du bör göra nu...</p>
+                </div>
+            </div>
+            `;
+
+            // Bifogar orderbekräftelse container till popup
+            const popup = document.getElementById("popup");
+            popup.appendChild(orderConfirmationContainer);
         }
     </script>
 </body>
