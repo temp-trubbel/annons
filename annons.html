@@ -123,7 +123,7 @@
             const showThis = document.getElementById("popup");
             showThis.innerHTML =
             `
-            <button id="close-modal-btn" type="button" class="btn-close" aria-label="Close"></button>
+            <button id="close-modal-btn" type="button" class="btn-close m-3 float-end" aria-label="Close"></button>
 
             <div id="offer" class="container-fluid">
                 <h1 class="display-4">${worldHeritage.name_en}</h1>
@@ -267,7 +267,7 @@
                                         <!-- the card element will be mounted here -->
                                     </div>
 
-                                    <button type="submit" class="btn btn-success">Betala</button>
+                                    <button id="payment-submit-btn" type="submit" class="btn btn-success">Betala</button>
                                 </form>
                             </div>
                         </div>
@@ -310,16 +310,22 @@
                 const card = document.getElementById("ad-card");
                 card.classList.remove("d-none");
             });
+            updateResponsiveLayout();
+            window.addEventListener("resize", updateResponsiveLayout); 
         }
     
         function handleSubmit() {
             const form = document.getElementById("form-personaldetails");
+            const submitBtn = document.getElementById("personaldetails-submit-btn");
 
             // Lägger till händelselyssnare på personuppgifter (skapa konto) formulär
             form.addEventListener("submit", async (event) => {
                 event.preventDefault(); // Stoppar omladdning av sidan
-
+                
                 // TODO: Spinner för submit knappen & disable form inputs vid submit av personuppgifter
+                toggleSpinnerLoader(submitBtn, true);
+                
+                formInputDisable("form-personaldetails")
 
                 const formData = new FormData(form);
 
@@ -373,9 +379,13 @@
             cardElement.mount("#card-element");
 
             const form = document.querySelector('#form-payment');
+            const submitBtn = document.getElementById("payment-submit-btn");
+
             form.addEventListener("submit", async (e) => {
                 e.preventDefault();
-
+                
+                toggleSpinnerLoader(submitBtn, true);
+                
                 // Skapa payment method och bekräfta payment intent
                 const result = await stripe.confirmCardPayment(clientSecret, {
                     payment_method: {
@@ -385,6 +395,7 @@
 
                 // Hantera resultat från Stripes egna Backend HTTP Response till stripe.confirmCardPayment()
                 if (result.error) {
+                    toggleSpinnerLoader(submitBtn, false);
                     alert(`Payment failed: ${result.error.message}`);
                 } else {
                     // alert("Success!");
@@ -394,6 +405,7 @@
                     document.getElementById("offer").classList.add("d-none");
 
                     // Lägg Spinner som laddar eller placeholder skeleton inuti orderbekräftelse div 👍
+                    toggleSpinnerLoader(submitBtn, false);
 
                     // Hämta (HTTP Request) dynamisk order/payment/subscription data 👍
                     // Kanske Request -> Backend (endpoint: /payment-confirmation||order-confirmation)
@@ -401,6 +413,7 @@
 
                     // Render (visa dynamiskt innehåll/data med innerHTML inuti orderbekräftelse div)
                     // den tar in som argument datan som kommit från /order-confirmation
+                    
                     renderOrderConfirmation();
                 }
             });
@@ -413,13 +426,47 @@
 
             orderConfirmationContainer.innerHTML =
             `
-            <div class="container-fluid w-100 vh-100">
-                <div class="d-flex flex-column justify-content-center align-items-center h-100">
-                    <i class="bi bi-check2-circle" style="font-size: 10rem; color: green;"></i>
+            <div class="container-fluid py-4 w-100 vh-100">
+                
+                <div class="card border-0 rounded-0">
+                    
+                    <div class="card-body p-4 text-center">
+                    
+                        <div class="mb-4">
+                            <i class="bi bi-check2-circle text-primary" style="font-size: 5rem;"></i>
+                            <h2 class="fw-bold text-uppercase font-monospace mt-3">Tack för din prenumeration!</h2>
+                        </div>
 
-                    <h1>Din betalning är genomförd!</h1>
-                    <p>Tack för din prenumation. Du kommer snarast att få ett mejl till din epost med instruktioner på vad du bör göra nu...</p>
+                        <div class="bg-light p-3 rounded mb-4 text-start">
+                            <h6 class="fw-bold mb-3">Medlemsinformation</h6>
+                            <div class="d-flex justify-content-between text-muted small mb-1">
+                                <span>Registreringsdatum:</span>
+                                <span class="fw-semibold text-dark">17-06-2026</span>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted small">
+                                <span>Prenumerationstyp:</span>
+                                <span class="fw-semibold text-dark">59 kr/mån</span>
+                            </div>
+                        </div>
+
+                        <div class="text-start mb-4">
+                            <h6 class="fw-bold">Vad händer nu?</h6>
+                            <ul class="list-unstyled text-secondary small">
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>Ett bekräftelsemejl har skickats till din e-post.
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill text-success me-2"></i>Klicka på länken i mejlet för att aktivera ditt konto.
+                                </li>
+                            </ul>
+                        </div>
+
+                        <button class="btn btn-primary w-50 py-2 text-nowrap" onclick="#">Stäng</button>
+                    
+                    </div>
+
                 </div>
+
             </div>
             `;
 
@@ -427,6 +474,84 @@
             const popup = document.getElementById("popup");
             popup.appendChild(orderConfirmationContainer);
         }
+        
+        // Uppdaterar layouten för annons baserat på fönstrets storlek
+        function updateResponsiveLayout() {
+            const adCard = document.getElementById("ad-card");
+            if (!adCard) return;
+
+            const isMobile = window.innerWidth < 650;
+
+            // Grupperade regler per element
+            const layoutConfig = [
+                {
+                    element: adCard.querySelector(".card-img-overlay"),
+                    mobile: ["flex-column", "gap-1", "p-2"],
+                    desktop: ["flex-row", "gap-3"]
+                },
+                {
+                    element: adCard.querySelector(".card-title"),
+                    mobile: ["h5", "mb-0"],
+                    desktop: [] 
+                },
+                {
+                    element: adCard.querySelector(".card-subtitle"),
+                    mobile: ["h6", "mb-0"],
+                    desktop: ["mb-1"]
+                },
+                {
+                    element: adCard.querySelector(".card-text"),
+                    mobile: ["d-none"],
+                    desktop: []
+                },
+                {
+                    element: adCard.querySelector("#more-btn"),
+                    mobile: ["btn-sm"],
+                    desktop: []
+                }
+            ];
+
+            // Applicera alla layoutregler genom att toggla klasser baserat på skärmläge
+            layoutConfig.forEach(({ element, mobile, desktop }) => {
+                if (!element) return;
+
+                mobile.forEach(className => element.classList.toggle(className, isMobile));
+                desktop.forEach(className => element.classList.toggle(className, !isMobile));
+            });
+        }
+        
+        // 
+        function formInputDisable(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            // Hämta alla fält
+            const elements = form.querySelectorAll("input, textarea, select");
+            
+            // Loopa igenom och lägg på disabled
+            elements.forEach(el => {
+                el.disabled = true; 
+            });
+
+            // Knappar disable:as också
+            const buttons = form.querySelectorAll("button");
+            buttons.forEach(btn => btn.disabled = true);
+        }
+
+        // Hanterar knappens laddningsläge
+        function toggleSpinnerLoader(btnElement, isLoading) {
+            // Spara originalinnehåll vid första körning
+            btnElement.dataset.originalText ||= btnElement.innerHTML;
+
+            // Visa spinner + text vid laddning, annars återställ original
+            btnElement.innerHTML = isLoading 
+                ? `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>${btnElement.dataset.originalText}`
+                : btnElement.dataset.originalText;
+
+            // Inaktivera knapp vid laddning för att undvika dubbelklick
+            btnElement.disabled = isLoading;
+        }
+
     </script>
 </body>
 </html>
