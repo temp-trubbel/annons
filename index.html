@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,9 +28,22 @@
     </div>
 
     <script>
-        async function main() {
-            // TODO: Ställ dynamiskt in språket på detta HTML dokument utifrån parent sidans språk
+        // Ställer dynamiskt in språket på detta HTML dokument utifrån parent sidans språk
+        window.addEventListener("message", async (event) => {
+            // Always verify origin for security, event origin should be the parent site URL
+            if (event.origin !== "http://127.0.0.1:5500") {
+                console.error(`Fel event Origin: ${event.origin}`);
+                return;
+            }
 
+            const eventDataParsed = await JSON.parse(event.data.WorkflowAPICall);
+            document.documentElement.lang = eventDataParsed.endpoint;
+            console.log("Annons språk:", document.documentElement.lang);
+
+            main();
+        }, false);
+
+        async function main() {
             // Hitta användarens koordinater
             const coordinates = await findMyCoordinates();
             if (coordinates) {
@@ -47,10 +60,7 @@
 
             // Hantering av personuppgifter submit
             handleSubmit();
-
-            // renderOrderConfirmation();
         }
-        main();
 
         async function findMyCoordinates() {
             if (navigator.geolocation) {              
@@ -86,7 +96,12 @@
 
             try {
                 // Hämtar världsarv från Backend API
-                const response = await fetch(url);
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        "Accept-Language": document.documentElement.lang
+                    }
+                });
                 const data = await response.json();
 
                 // Retunerar världsarv
@@ -102,31 +117,31 @@
             const adCard = document.getElementById("ad-card");
             adCard.innerHTML =
             `
-            <img src="${worldHeritage.main_image_url}" class="card-img h-100 object-fit-cover rounded-0">
+            <img src="${worldHeritage.mainImgUrl}" class="card-img h-100 object-fit-cover rounded-0">
 
-            <div class="card-img-overlay rounded-0 bg-black bg-opacity-50 hstack gap-3 justify-content-around">
+            <div class="card-img-overlay rounded-0 bg-black bg-opacity-50 p-1 d-flex flex-column justify-content-center">
                 <div>
-                    <h3 class="card-title">Upptäck världsarv nära dig!</h3>
+                    <h1 class="card-title fs-3">${worldHeritage.adCardHeader}</h1>
+                </div>
+                <div class="mb-1">
+                    <h2 class="card-subtitle fw-normal fs-5">${worldHeritage.name}</h2>
+                    <p class="card-text text-truncate">${worldHeritage.description}</p>
                 </div>
                 <div class="">
-                    <h5 class="card-subtitle mb-1">${worldHeritage.name_en}</h5>
-                    <p class="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis dolor tempora ducimus voluptas officiis sed?</p>
-                </div>
-                <div>
-                    <button id="more-btn" class="btn btn-primary text-nowrap">Läs mer om tjänsten</button>
+                    <button id="more-btn" class="btn btn-primary text-nowrap">${worldHeritage.adCardBtnLabel}</button>
                 </div>
             </div>
             `;
 
-            let images = worldHeritage.images_urls.split(", ");
-            const carouselImages = images.slice(0, 5);
+            // let images = worldHeritage.imagesUrls.split(", ");
+            const carouselImages = worldHeritage.imagesUrls;
             const showThis = document.getElementById("popup");
             showThis.innerHTML =
             `
             <button id="close-modal-btn" type="button" class="btn-close" aria-label="Close"></button>
 
             <div id="offer" class="container-fluid">
-                <h1 class="display-4">${worldHeritage.name_en}</h1>
+                <h1 class="display-4">${worldHeritage.name}</h1>
 
                 <div id="carousel" class="carousel slide">
                     <div class="carousel-indicators">
@@ -163,43 +178,43 @@
                 </div>
 
                 <div class="position-relative">
-                    <p>${worldHeritage.short_description_en}</p>
+                    <p>${worldHeritage.description}</p>
                     
                     <div class="w-100 h-50 position-absolute bottom-0 start-0 pe-none" style="background: linear-gradient(to top, #fff, transparent);"></div>
                 </div>
 
                 <div class="text-center my-5">
-                    <p class="text-uppercase font-monospace fw-bold">Utforska alla världsarv. Börja din resa nu.</p>
+                    <p class="text-uppercase font-monospace fw-bold">${worldHeritage.popupCtaHeader}</p>
 
-                    <p class="fs-3 px-5">För det låga priset av <span class="fw-bold">59 kr per månad</span> får du obegränsad tillgång till världsarvstjänsten.</p>
+                    <p class="fs-3 px-5">${worldHeritage.popupCtaText}</p>
 
                     <button class="btn btn-outline-primary w-50 text-uppercase font-monospace fw-bold">
-                        Prenumerera för mer / Kom igång <i class="bi bi-arrow-down"></i>
+                        ${worldHeritage.popupCtaBtnLabel}<i class="bi bi-arrow-down"></i>
                     </button>
                 </div>
 
                 <nav>
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
                         <button class="nav-link active" id="nav-subscribe-tab" data-bs-toggle="tab" data-bs-target="#nav-subscribe" type="button" role="tab">
-                            <i class="bi bi-currency-dollar"></i> Varför prenumerera?
+                            <i class="bi bi-currency-dollar"></i> ${worldHeritage.tabWhySubscripeLabel}
                         </button>
                         <button class="nav-link" id="nav-terms-tab" data-bs-toggle="tab" data-bs-target="#nav-terms" type="button" role="tab">
-                            <i class="bi bi-file-earmark-text"></i> Villkor
+                            <i class="bi bi-file-earmark-text"></i> ${worldHeritage.tabTermsLabel}
                         </button>
                         <button class="nav-link" id="nav-install-tab" data-bs-toggle="tab" data-bs-target="#nav-install" type="button" role="tab">
-                            <i class="bi bi-plug"></i> Installation
+                            <i class="bi bi-plug"></i> ${worldHeritage.tabInstallationLabel}
                         </button>
                     </div>
                 </nav>
                 <div class="tab-content mb-5" id="nav-tabContent">
                     <div class="tab-pane fade show active" id="nav-subscribe" role="tabpanel" tabindex="0">
-                        ...
+                        ${worldHeritage.tabWhySubscripeText}
                     </div>
                     <div class="tab-pane fade" id="nav-terms" role="tabpanel" tabindex="0">
-                        ...
+                        ${worldHeritage.tabTermsText}
                     </div>
                     <div class="tab-pane fade" id="nav-install" role="tabpanel" tabindex="0">
-                        ...
+                        ${worldHeritage.tabInstallationText}
                     </div>
                 </div>
 
@@ -207,7 +222,7 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header">
                             <button id="accordion-header-personaldetails-btn" class="accordion-button pe-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                                <span class="badge rounded-pill text-bg-primary me-1">1</span> Personuppgifter
+                                <span class="badge rounded-pill text-bg-primary me-1">1</span> ${worldHeritage.formPersonalHeader}
                             </button>
                         </h2>
                         <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordion-form">
@@ -217,39 +232,39 @@
                                         <div class="col-sm">
                                             <div class="form-floating">
                                                 <input type="text" class="form-control" id="firstname" name="firstname" placeholder="John" required>
-                                                <label for="firstname">Förnamn</label>
+                                                <label for="firstname">${worldHeritage.formFirstNameLabel}</label>
                                             </div>
                                         </div>
 
                                         <div class="col-sm">
                                             <div class="form-floating">
                                                 <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Doe" required>
-                                                <label for="lastname">Efternamn</label>
+                                                <label for="lastname">${worldHeritage.formLastNameLabel}</label>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="form-floating my-3">
                                         <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
-                                        <label for="email">E-post</label>
+                                        <label for="email">${worldHeritage.formEmailLabel}</label>
                                     </div>
 
                                     <div class="form-floating my-3">
                                         <input type="tel" class="form-control" id="phone" name="phone" placeholder="+46723624592" required>
-                                        <label for="phone">Mobilnummer</label>
+                                        <label for="phone">${worldHeritage.formPhoneNrLabel}</label>
                                     </div>
 
                                     <div class="form-check my-3">
                                         <input class="form-check-input" type="checkbox" data-bs-toggle="collapse" data-bs-target="#collapse-ssn" value="" id="checkDefault">
-                                        <label class="form-check-label" for="checkDefault">Jag har ett svenskt personnummer</label>
+                                        <label class="form-check-label" for="checkDefault">${worldHeritage.formSsnCheckboxLabel}</label>
                                     </div>
 
                                     <div class="form-floating my-3 collapse" id="collapse-ssn">
                                         <input type="tel" class="form-control" id="ssn" name="ssn" placeholder="198504019999">
-                                        <label for="ssn">Personnummer</label>
+                                        <label for="ssn">${worldHeritage.formSsnInputLabel}</label>
                                     </div>
 
-                                    <button id="personaldetails-submit-btn" type="submit" class="btn btn-primary">Gå vidare till betalning</button>
+                                    <button id="personaldetails-submit-btn" type="submit" class="btn btn-primary">${worldHeritage.formContinueBtnLabel}</button>
                                 </form>
                             </div>
                         </div>
@@ -257,7 +272,7 @@
                     <div class="accordion-item">
                         <h2 class="accordion-header">
                             <button id="accordion-header-payment-btn" class="accordion-button pe-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                                <span class="badge rounded-pill text-bg-primary me-1">2</span> Betalning
+                                <span class="badge rounded-pill text-bg-primary me-1">2</span> ${worldHeritage.formPaymentHeader}
                             </button>
                         </h2>
                         <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordion-form">
@@ -267,7 +282,7 @@
                                         <!-- the card element will be mounted here -->
                                     </div>
 
-                                    <button type="submit" class="btn btn-success">Betala</button>
+                                    <button type="submit" class="btn btn-success">${worldHeritage.formPaymentBtnLabel}</button>
                                 </form>
                             </div>
                         </div>
@@ -328,12 +343,19 @@
                 console.log("Form data:", data);
 
                 // Kallar på backend för att få Stripe client secret sträng
-                const clientSecret = await getClientSecret(data);
-                console.log("Stripe ClientSecret:", clientSecret);
+                const stripeData = await getClientSecret(data);
 
-                // TODO: Hantering av ifall clientSecret är null
-                if (!clientSecret) {
-                    alert("clientSecret är null! Någon/några av personuppgifterna är redan upptagna!")
+                // Visa Alert om användare redan finns med matchande personuppgifter (email, mobilnr, ssn)
+                if (!stripeData.clientSecret) {
+                    // alert(stripeData.message)
+                    const alert = document.createElement("div");
+                    alert.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        ${stripeData.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    `
+                    form.prepend(alert);
                     return
                 }
 
@@ -344,17 +366,18 @@
                 document.getElementById("collapseTwo").classList.add("show");
 
                 // Init Stripe Payment
-                initStripePayment(clientSecret);
+                initStripePayment(stripeData.clientSecret);
             });
         }
     
         async function getClientSecret(data) {
             const response = await fetch("http://127.0.0.1:8000/secret", {
+                method: "POST",
                 headers: {
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    "Accept-Language": document.documentElement.lang
                 },
-                method: "POST",
                 body: JSON.stringify(data),
             });
 
@@ -387,26 +410,53 @@
                 if (result.error) {
                     alert(`Payment failed: ${result.error.message}`);
                 } else {
-                    // alert("Success!");
-                    // TODO: Här bör orderbekräftelse visas
+                    // Här visas orderbekräftelse
 
-                    // Dölj offer 👍
+                    // Dölj offer
                     document.getElementById("offer").classList.add("d-none");
 
-                    // Lägg Spinner som laddar eller placeholder skeleton inuti orderbekräftelse div 👍
+                    // Skapar container och spinner som laddar
+                    const spinnerContainer = document.createElement("div");
+                    spinnerContainer.classList.add(["container-fluid", "w-100", "vh-100"]);
+                    spinnerContainer.innerHTML = `
+                    <div class="d-flex flex-column justify-content-center align-items-center h-100">
+                        <div class="spinner-grow" style="width: 7rem; height: 7rem;" role="status"></div>
+                    </div>
+                    `
 
-                    // Hämta (HTTP Request) dynamisk order/payment/subscription data 👍
-                    // Kanske Request -> Backend (endpoint: /payment-confirmation||order-confirmation)
-                    // Går det bra att hämta datan så dölj/ta bort spinner
+                    // Lägger spinner container inuti popup
+                    const popup = document.getElementById("popup");
+                    popup.appendChild(spinnerContainer);
+
+                    // Hämta order/payment/subscription data
+                    const pi_id = result.paymentIntent.id;
+                    const url = `http://localhost:8000/payment/confirm?paymentintent_id=${pi_id}`;
+
+                    const response = await fetch(url, {
+                        method: "GET",
+                        headers: {
+                            "Accept-Language": document.documentElement.lang
+                        }
+                    });
+
+                    if (!response.ok) {
+                        console.error(response.status)
+                        return
+                    }
+
+                    const data = await response.json();
+
+                    // TODO: Går det bra att hämta datan så dölj/ta bort spinner
+                    spinnerContainer.remove()
 
                     // Render (visa dynamiskt innehåll/data med innerHTML inuti orderbekräftelse div)
                     // den tar in som argument datan som kommit från /order-confirmation
-                    renderOrderConfirmation();
+                    renderOrderConfirmation(data);
                 }
             });
         }
 
-        function renderOrderConfirmation() {
+        function renderOrderConfirmation(data) {
             // Skapar container för orderbekräftelse
             const orderConfirmationContainer = document.createElement("div");
             
@@ -417,8 +467,8 @@
                 <div class="d-flex flex-column justify-content-center align-items-center h-100">
                     <i class="bi bi-check2-circle" style="font-size: 10rem; color: green;"></i>
 
-                    <h1>Din betalning är genomförd!</h1>
-                    <p>Tack för din prenumation. Du kommer snarast att få ett mejl till din epost med instruktioner på vad du bör göra nu...</p>
+                    <h1>${data.title}</h1>
+                    <p>${data.description}</p>
                 </div>
             </div>
             `;

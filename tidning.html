@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -255,7 +255,7 @@ footer {
 
             <!-- Inline Article Ad -->
             <div class="inline-ad">
-                <iframe id="myIframe" src="./annons.html"></iframe>
+                <iframe id="myIframe" src="./index.html"></iframe>
             </div>
 
             <p>
@@ -315,6 +315,8 @@ footer {
 </footer>
 
 <script>
+    const myFrame = document.getElementById("myIframe");
+
     window.addEventListener("message", async (event) => {
         if (event.origin !== "http://127.0.0.1:5500") {
             console.error(`Fel event Origin: ${event.origin}`);
@@ -328,15 +330,15 @@ footer {
             case "open-popup":
                 console.log("Entered case 'open-popup'");
                 document.getElementById("myIframe").style.height = "100%";
-                document.getElementById("myIframe").style.width = "100%";
-                document.getElementById("myIframe").style.padding = "2rem 5%";
+                document.getElementById("myIframe").style.width = "clamp(320px, 100%, 1000px)";
+                document.getElementById("myIframe").style.padding = "1rem 1rem";
                 document.getElementById("myIframe").style.position = "fixed";
                 document.getElementById("myIframe").style.left = "50%";
                 document.getElementById("myIframe").style.top = "50%";
                 document.getElementById("myIframe").style.right = "0";
                 document.getElementById("myIframe").style.bottom = "0";
                 document.getElementById("myIframe").style.transform = "translate(-50%, -50%)";
-                document.getElementById("myIframe").style.backgroundColor = "rgba(0,0,0,.4)";
+                // document.getElementById("myIframe").style.backgroundColor = "rgba(0,0,0,.4)";
                 document.getElementById("myIframe").style.zIndex = "9999999999999999";
                 document.querySelector("body").style.overflow = "hidden";
                 break;
@@ -346,6 +348,12 @@ footer {
                 document.querySelector("body").style.overflow = "";
         }
     }, false);
+
+    myFrame.onload = async () => {
+        lang = document.documentElement.lang;
+        var msg = await JSON.stringify({ "endpoint": lang });
+        myFrame.contentWindow.postMessage({ WorkflowAPICall: msg });
+    }
 </script>
 
 </body>
