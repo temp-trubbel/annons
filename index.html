@@ -1,482 +1,314 @@
 <!DOCTYPE html>
-<html>
+<html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Annons</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <script src="https://js.stripe.com/dahlia/stripe.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily News</title>
+<script src="script.js" defer></script>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Georgia, serif;
+    background: #f4f4f4;
+    color: #222;
+    line-height: 1.7;
+}
+
+.container {
+    max-width: 1400px;
+    margin: auto;
+}
+
+/* Header */
+header {
+    background: white;
+    border-bottom: 2px solid #ddd;
+}
+
+.top-bar {
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+
+.logo {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: bold;
+    padding: 20px;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    padding: 15px;
+    border-top: 1px solid #eee;
+}
+
+nav a {
+    text-decoration: none;
+    color: #222;
+    font-weight: bold;
+}
+
+/* Top Banner Ad */
+.top-ad {
+    background: white;
+    margin: 20px auto;
+    padding: 15px;
+    text-align: center;
+}
+
+.top-ad iframe {
+    width: 728px;
+    height: 90px;
+    border: none;
+    max-width: 100%;
+}
+
+/* Main Layout */
+.content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 30px;
+    padding: 20px;
+}
+
+main {
+    background: white;
+    padding: 30px;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Article */
+.headline {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.meta {
+    color: #777;
+    margin-bottom: 25px;
+}
+
+.hero-image {
+    height: 400px;
+    background: #ddd;
+    margin-bottom: 25px;
+}
+
+p {
+    margin-bottom: 20px;
+}
+
+/* Inline Article Ad */
+.inline-ad {
+    margin: 0;
+}
+
+.inline-ad iframe {
+    width: 100%;
+    /* max-width: 728px; */
+    /* height: 90px; */
+    border: none;
+}
+
+/* Sidebar Ads */
+.sidebar-ad {
+    background: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.sidebar-ad iframe {
+    width: 300px;
+    height: 250px;
+    border: none;
+}
+
+/* Related News */
+.related-news {
+    background: white;
+    padding: 20px;
+}
+
+.related-news h3 {
+    margin-bottom: 15px;
+}
+
+.related-news li {
+    margin-bottom: 10px;
+}
+
+/* Footer */
+footer {
+    background: #111;
+    color: white;
+    margin-top: 40px;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.footer-ad {
+    margin-bottom: 30px;
+}
+
+.footer-ad iframe {
+    width: 728px;
+    height: 90px;
+    border: none;
+    max-width: 100%;
+}
+
+@media (max-width: 1024px) {
+    .content-wrapper {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .headline {
+        font-size: 2rem;
+    }
+
+    nav {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+}
+</style>
 </head>
-
 <body>
-    <!-- Advertisment Card -->
-    <div id="ad-card" class="card border-0 text-white w-100" style="height: 130px;">
-        <div class="d-flex justify-content-center align-items-center h-100 gap-2 bg-secondary-subtle">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
 
-        <!-- Ad card innehåll med render() -->
+<header>
+    <div class="top-bar">
+        Friday, June 5, 2026
     </div>
 
-    <!-- Modal -->
-    <div id="popup" class="d-none">
-        <!-- Modal/popup innehåll med render() -->
+    <div class="logo">
+        THE DAILY NEWS
     </div>
 
-    <script>
-        // Ställer dynamiskt in språket på detta HTML dokument utifrån parent sidans språk
-        window.addEventListener("message", async (event) => {
-            // Always verify origin for security, event origin should be the parent site URL
-            if (event.origin !== "http://127.0.0.1:5500") {
-                console.error(`Fel event Origin: ${event.origin}`);
-                return;
-            }
+    <nav>
+        <a href="#">World</a>
+        <a href="#">Politics</a>
+        <a href="#">Business</a>
+        <a href="#">Technology</a>
+        <a href="#">Sports</a>
+        <a href="#">Culture</a>
+    </nav>
+</header>
 
-            const eventDataParsed = await JSON.parse(event.data.WorkflowAPICall);
-            document.documentElement.lang = eventDataParsed.endpoint;
-            console.log("Annons språk:", document.documentElement.lang);
+<div class="container">
 
-            main();
-        }, false);
+    <!-- Top Leaderboard Ad -->
+    <section class="top-ad">
+        <iframe src="YOUR_AD_IFRAME_URL"></iframe>
+    </section>
 
-        async function main() {
-            // Hitta användarens koordinater
-            const coordinates = await findMyCoordinates();
-            if (coordinates) {
-                console.log("longitude:", coordinates.longitude);
-                console.log("latitude:", coordinates.latitude);
-            }
+    <div class="content-wrapper">
 
-            // GET världsarv baserat på användarens koordinater från API
-            const worldHeritage = await getWorldHeritage(coordinates);
-            console.log(worldHeritage);
+        <main>
 
-            // Render det riktiga innehållet (ersätt placeholder div:en)
-            render(worldHeritage);
+            <h1 class="headline">
+                Major Event Shapes the Future of Global Technology
+            </h1>
 
-            // Hantering av personuppgifter submit
-            handleSubmit();
-        }
-
-        async function findMyCoordinates() {
-            if (navigator.geolocation) {              
-                return new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(success, error);
-
-                    function success(position) {
-                        const crd = position.coords;
-                        resolve(crd);
-                    }
-
-                    function error(error) {
-                        console.error(error.message)
-                        resolve(null);
-                    }
-                });
-            }
-
-            else {
-                /* geolocation IS NOT supported */
-                console.error("Geolocation is not supported by this browser.");
-            }
-        }
-
-        async function getWorldHeritage(coords) {
-            let url;
-            if (coords) {
-                url = `http://localhost:8000/something?longitude=${coords.longitude}&latitude=${coords.latitude}`
-            }
-            else {
-                url = "http://localhost:8000/something"
-            }
-
-            try {
-                // Hämtar världsarv från Backend API
-                const response = await fetch(url, {
-                    method: "GET",
-                    headers: {
-                        "Accept-Language": document.documentElement.lang
-                    }
-                });
-                const data = await response.json();
-
-                // Retunerar världsarv
-                return data;
-
-            } catch (error) {
-                console.error(error);
-                return {};
-            }
-        }
-
-        function render(worldHeritage) {
-            const adCard = document.getElementById("ad-card");
-            adCard.innerHTML =
-            `
-            <img src="${worldHeritage.mainImgUrl}" class="card-img h-100 object-fit-cover rounded-0">
-
-            <div class="card-img-overlay rounded-0 bg-black bg-opacity-50 p-1 d-flex flex-column justify-content-center">
-                <div>
-                    <h1 class="card-title fs-3">${worldHeritage.adCardHeader}</h1>
-                </div>
-                <div class="mb-1">
-                    <h2 class="card-subtitle fw-normal fs-5">${worldHeritage.name}</h2>
-                    <p class="card-text text-truncate">${worldHeritage.description}</p>
-                </div>
-                <div class="">
-                    <button id="more-btn" class="btn btn-primary text-nowrap">${worldHeritage.adCardBtnLabel}</button>
-                </div>
+            <div class="meta">
+                By Staff Reporter • 5 min read
             </div>
-            `;
 
-            // let images = worldHeritage.imagesUrls.split(", ");
-            const carouselImages = worldHeritage.imagesUrls;
-            const showThis = document.getElementById("popup");
-            showThis.innerHTML =
-            `
-            <button id="close-modal-btn" type="button" class="btn-close" aria-label="Close"></button>
+            <div class="hero-image"></div>
 
-            <div id="offer" class="container-fluid">
-                <h1 class="display-4">${worldHeritage.name}</h1>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Sed euismod, nisl vel ultricies lacinia, nunc nisl aliquam
+                nunc, eget aliquam nisl nunc vel nisl.
+            </p>
 
-                <div id="carousel" class="carousel slide">
-                    <div class="carousel-indicators">
-                        ${
-                            carouselImages.map((imgUrl, index) => {
-                                return `
-                                <button type="button" data-bs-target="#carousel" data-bs-slide-to="${index}" class="${index == 0 ? 'active' : ''}"></button>
-                                `;
-                            }).join('')
-                        }
-                    </div>
+            <p>
+                Curabitur tincidunt, libero vel posuere tincidunt,
+                felis urna fermentum turpis, non feugiat augue sapien at erat.
+            </p>
 
-                    <div class="carousel-inner">
-                        ${
-                            carouselImages.map((imgUrl, index) => {
-                                return `
-                                <div class="carousel-item ${index == 0 ? 'active' : ''} ratio ratio-21x9">
-                                    <img src="${imgUrl}" class="d-block w-100 object-fit-cover">
-                                </div>
-                                `;
-                            }).join('')
-                        }
-                    </div>
-
-                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-
-                    <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                </div>
-
-                <div class="position-relative">
-                    <p>${worldHeritage.description}</p>
-                    
-                    <div class="w-100 h-50 position-absolute bottom-0 start-0 pe-none" style="background: linear-gradient(to top, #fff, transparent);"></div>
-                </div>
-
-                <div class="text-center my-5">
-                    <p class="text-uppercase font-monospace fw-bold">${worldHeritage.popupCtaHeader}</p>
-
-                    <p class="fs-3 px-5">${worldHeritage.popupCtaText}</p>
-
-                    <button class="btn btn-outline-primary w-50 text-uppercase font-monospace fw-bold">
-                        ${worldHeritage.popupCtaBtnLabel}<i class="bi bi-arrow-down"></i>
-                    </button>
-                </div>
-
-                <nav>
-                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <button class="nav-link active" id="nav-subscribe-tab" data-bs-toggle="tab" data-bs-target="#nav-subscribe" type="button" role="tab">
-                            <i class="bi bi-currency-dollar"></i> ${worldHeritage.tabWhySubscripeLabel}
-                        </button>
-                        <button class="nav-link" id="nav-terms-tab" data-bs-toggle="tab" data-bs-target="#nav-terms" type="button" role="tab">
-                            <i class="bi bi-file-earmark-text"></i> ${worldHeritage.tabTermsLabel}
-                        </button>
-                        <button class="nav-link" id="nav-install-tab" data-bs-toggle="tab" data-bs-target="#nav-install" type="button" role="tab">
-                            <i class="bi bi-plug"></i> ${worldHeritage.tabInstallationLabel}
-                        </button>
-                    </div>
-                </nav>
-                <div class="tab-content mb-5" id="nav-tabContent">
-                    <div class="tab-pane fade show active" id="nav-subscribe" role="tabpanel" tabindex="0">
-                        ${worldHeritage.tabWhySubscripeText}
-                    </div>
-                    <div class="tab-pane fade" id="nav-terms" role="tabpanel" tabindex="0">
-                        ${worldHeritage.tabTermsText}
-                    </div>
-                    <div class="tab-pane fade" id="nav-install" role="tabpanel" tabindex="0">
-                        ${worldHeritage.tabInstallationText}
-                    </div>
-                </div>
-
-                <div class="accordion container-fluid" id="accordion-form">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button id="accordion-header-personaldetails-btn" class="accordion-button pe-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                                <span class="badge rounded-pill text-bg-primary me-1">1</span> ${worldHeritage.formPersonalHeader}
-                            </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordion-form">
-                            <div class="accordion-body">
-                                <form id="form-personaldetails">
-                                    <div class="row g-3">
-                                        <div class="col-sm">
-                                            <div class="form-floating">
-                                                <input type="text" class="form-control" id="firstname" name="firstname" placeholder="John" required>
-                                                <label for="firstname">${worldHeritage.formFirstNameLabel}</label>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-sm">
-                                            <div class="form-floating">
-                                                <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Doe" required>
-                                                <label for="lastname">${worldHeritage.formLastNameLabel}</label>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-floating my-3">
-                                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
-                                        <label for="email">${worldHeritage.formEmailLabel}</label>
-                                    </div>
-
-                                    <div class="form-floating my-3">
-                                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="+46723624592" required>
-                                        <label for="phone">${worldHeritage.formPhoneNrLabel}</label>
-                                    </div>
-
-                                    <div class="form-check my-3">
-                                        <input class="form-check-input" type="checkbox" data-bs-toggle="collapse" data-bs-target="#collapse-ssn" value="" id="checkDefault">
-                                        <label class="form-check-label" for="checkDefault">${worldHeritage.formSsnCheckboxLabel}</label>
-                                    </div>
-
-                                    <div class="form-floating my-3 collapse" id="collapse-ssn">
-                                        <input type="tel" class="form-control" id="ssn" name="ssn" placeholder="198504019999">
-                                        <label for="ssn">${worldHeritage.formSsnInputLabel}</label>
-                                    </div>
-
-                                    <button id="personaldetails-submit-btn" type="submit" class="btn btn-primary">${worldHeritage.formContinueBtnLabel}</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button id="accordion-header-payment-btn" class="accordion-button pe-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                                <span class="badge rounded-pill text-bg-primary me-1">2</span> ${worldHeritage.formPaymentHeader}
-                            </button>
-                        </h2>
-                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordion-form">
-                            <div class="accordion-body">
-                                <form id="form-payment">
-                                    <div id="card-element">
-                                        <!-- the card element will be mounted here -->
-                                    </div>
-
-                                    <button type="submit" class="btn btn-success">${worldHeritage.formPaymentBtnLabel}</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <!-- Inline Article Ad -->
+            <div class="inline-ad">
+                <iframe id="adIframe" src="ad-landscape.html"></iframe>
             </div>
-            `;
 
-            const button = document.getElementById("more-btn");
-            const closeModalButton = document.getElementById("close-modal-btn");
-            
-            // För att öppna popup/modalen
-            button.addEventListener("click", async () => {
-                var msg = await JSON.stringify( {"endpoint": "open-popup"} );
-                console.log(msg);
-                // `${document.URL}`
-                window.parent.postMessage( {WorkflowAPICall: msg} );
+            <p>
+                Donec dignissim orci nec turpis vulputate, vitae
+                consequat nisl pulvinar. Integer vel turpis in sem
+                tristique fermentum.
+            </p>
 
-                // Dölj med class invisible eller d-none ad card div:en
-                const card = document.getElementById("ad-card");
-                // card.classList.add("invisible");
-                card.classList.add("d-none");
+            <p>
+                Phasellus feugiat sem quis sem interdum, vitae
+                pulvinar purus dictum. Pellentesque habitant morbi
+                tristique senectus et netus et malesuada fames.
+            </p>
 
-                // Visa nu modal/dialog/popup
-                const showThis = document.getElementById("popup");
-                showThis.classList.remove("d-none");
-            });
+            <p>
+                Mauris sit amet urna id tortor malesuada volutpat.
+                Duis hendrerit magna eget luctus interdum.
+            </p>
 
-            // För att stänga popup/modalen
-            closeModalButton.addEventListener("click", async () => {
-                var msg = await JSON.stringify( {"endpoint": "close-popup"} );
-                console.log(msg);
-                window.parent.postMessage( {WorkflowAPICall: msg} );
+        </main>
 
-                // Dölj modal/dialog/popup (#popup) med .add("d-none")
-                const showThis = document.getElementById("popup");
-                showThis.classList.add("d-none");
+        <aside class="sidebar">
 
-                // Visa ad card div:en (#ad-card) igen med .remove("d-none")
-                const card = document.getElementById("ad-card");
-                card.classList.remove("d-none");
-            });
-        }
-    
-        function handleSubmit() {
-            const form = document.getElementById("form-personaldetails");
-
-            // Lägger till händelselyssnare på personuppgifter (skapa konto) formulär
-            form.addEventListener("submit", async (event) => {
-                event.preventDefault(); // Stoppar omladdning av sidan
-
-                // TODO: Spinner för submit knappen & disable form inputs vid submit av personuppgifter
-
-                const formData = new FormData(form);
-
-                // Convert to plain object
-                const data = Object.fromEntries(formData.entries());
-                console.log("Form data:", data);
-
-                // Kallar på backend för att få Stripe client secret sträng
-                const stripeData = await getClientSecret(data);
-
-                // Visa Alert om användare redan finns med matchande personuppgifter (email, mobilnr, ssn)
-                if (!stripeData.clientSecret) {
-                    // alert(stripeData.message)
-                    const alert = document.createElement("div");
-                    alert.innerHTML = `
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        ${stripeData.message}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    `
-                    form.prepend(alert);
-                    return
-                }
-
-                // Stänger Personuppgifter accordion formulär och öppnar Betalning accordion formulär
-                document.getElementById("accordion-header-personaldetails-btn").classList.add("collapsed");
-                document.getElementById("collapseOne").classList.remove("show");
-                document.getElementById("accordion-header-payment-btn").classList.remove("collapsed");
-                document.getElementById("collapseTwo").classList.add("show");
-
-                // Init Stripe Payment
-                initStripePayment(stripeData.clientSecret);
-            });
-        }
-    
-        async function getClientSecret(data) {
-            const response = await fetch("http://127.0.0.1:8000/secret", {
-                method: "POST",
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    "Accept-Language": document.documentElement.lang
-                },
-                body: JSON.stringify(data),
-            });
-
-            const clientSecret = await response.json();
-
-            return clientSecret;
-        }
-
-        async function initStripePayment(clientSecret) {
-            stripe = Stripe('pk_test_51TZBpvRfGL28nQKFtwc6eldofWKeQpsJ9ozCVHaVgSXC2WcUNiaDEjzP0hdO53oiZ1Z7eMt2BlUyJePxRZIxwsRx00oK3unykG');
-
-            const elements = stripe.elements({
-                locale: "en" // TODO: Bör vara dynamiskt värde från parent sida (document.documentElement.lang)
-            });
-            cardElement = elements.create("card");
-            cardElement.mount("#card-element");
-
-            const form = document.querySelector('#form-payment');
-            form.addEventListener("submit", async (e) => {
-                e.preventDefault();
-
-                // Skapa payment method och bekräfta payment intent
-                const result = await stripe.confirmCardPayment(clientSecret, {
-                    payment_method: {
-                        card: cardElement
-                    }
-                });
-
-                // Hantera resultat från Stripes egna Backend HTTP Response till stripe.confirmCardPayment()
-                if (result.error) {
-                    alert(`Payment failed: ${result.error.message}`);
-                } else {
-                    // Här visas orderbekräftelse
-
-                    // Dölj offer
-                    document.getElementById("offer").classList.add("d-none");
-
-                    // Skapar container och spinner som laddar
-                    const spinnerContainer = document.createElement("div");
-                    spinnerContainer.classList.add(["container-fluid", "w-100", "vh-100"]);
-                    spinnerContainer.innerHTML = `
-                    <div class="d-flex flex-column justify-content-center align-items-center h-100">
-                        <div class="spinner-grow" style="width: 7rem; height: 7rem;" role="status"></div>
-                    </div>
-                    `
-
-                    // Lägger spinner container inuti popup
-                    const popup = document.getElementById("popup");
-                    popup.appendChild(spinnerContainer);
-
-                    // Hämta order/payment/subscription data
-                    const pi_id = result.paymentIntent.id;
-                    const url = `http://localhost:8000/payment/confirm?paymentintent_id=${pi_id}`;
-
-                    const response = await fetch(url, {
-                        method: "GET",
-                        headers: {
-                            "Accept-Language": document.documentElement.lang
-                        }
-                    });
-
-                    if (!response.ok) {
-                        console.error(response.status)
-                        return
-                    }
-
-                    const data = await response.json();
-
-                    // TODO: Går det bra att hämta datan så dölj/ta bort spinner
-                    spinnerContainer.remove()
-
-                    // Render (visa dynamiskt innehåll/data med innerHTML inuti orderbekräftelse div)
-                    // den tar in som argument datan som kommit från /order-confirmation
-                    renderOrderConfirmation(data);
-                }
-            });
-        }
-
-        function renderOrderConfirmation(data) {
-            // Skapar container för orderbekräftelse
-            const orderConfirmationContainer = document.createElement("div");
-            
-
-            orderConfirmationContainer.innerHTML =
-            `
-            <div class="container-fluid w-100 vh-100">
-                <div class="d-flex flex-column justify-content-center align-items-center h-100">
-                    <i class="bi bi-check2-circle" style="font-size: 10rem; color: green;"></i>
-
-                    <h1>${data.title}</h1>
-                    <p>${data.description}</p>
-                </div>
+            <div class="sidebar-ad">
+                <iframe src="YOUR_AD_IFRAME_URL"></iframe>
             </div>
-            `;
 
-            // Bifogar orderbekräftelse container till popup
-            const popup = document.getElementById("popup");
-            popup.appendChild(orderConfirmationContainer);
-        }
-    </script>
+            <div class="sidebar-ad">
+                <iframe src="YOUR_AD_IFRAME_URL"></iframe>
+            </div>
+
+            <div class="related-news">
+                <h3>Most Read</h3>
+                <ul>
+                    <li>Economic Markets Reach New Highs</li>
+                    <li>Breakthrough in Renewable Energy</li>
+                    <li>International Summit Concludes</li>
+                    <li>Sports Team Wins Championship</li>
+                    <li>Major AI Announcement Released</li>
+                </ul>
+            </div>
+
+        </aside>
+
+    </div>
+
+</div>
+
+<footer>
+
+    <div class="footer-ad">
+        <iframe src="YOUR_AD_IFRAME_URL"></iframe>
+    </div>
+
+    <p>© 2026 The Daily News</p>
+
+</footer>
 </body>
 </html>
